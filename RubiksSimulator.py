@@ -108,5 +108,16 @@ class Rubiks27:
       self.left = temp.left
       self.top = temp.top
       self.bottom = temp.bottom
+    
+    def deriveScore(self):
+      cubeDictionary = self.returnCube()
+      points = 0
+      for faceName in cubeDictionary:
+        face = cubeDictionary[faceName]
+        for row in face:
+          for cell in row:
+            if cell == cubeDictionary[faceName][1][1]:
+              points += 1
+      return points
 
 
