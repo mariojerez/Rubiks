@@ -2,11 +2,11 @@
 Vision: Simulate Rubiks Cube and use machine learning to find efficient solutions
 
 To try out:
-> cube = Rubiks27()
+> cube = Rubiks3()
 
 > print(cube)
 
-> cube.front_clockwise()
+> cube.clockwise([side color])
 
 > print(cube)
 
