@@ -1,5 +1,12 @@
-import numpy as np
+'''
+To try out the cube:
+>cube = Rubiks3()
+>print(cube)
+>cube.clockwise("white") #or some other color
+>print(cube)
 
+Note: The side color of a cube side is defined by the color of the center cell on that side
+'''
 class Rubiks3:
 
     def __init__(self):
@@ -49,21 +56,20 @@ class Rubiks3:
       return {"white":self.white, "blue":self.blue, "green":self.green, "orange":self.orange, "yellow":self.yellow, "red":self.red}
     
     # Sets the cells of the column in self.tempFace to be what the cells were of the row in the actual face
-    def row_to_column(self,faceName,rowNum,colNum):
-      face = self.orientation[faceName]
+    def row_to_column(self,faceName,rowNum,colNum,referenceCube):
+      face = referenceCube.orientation[faceName]
       row = face[rowNum]
       for i in range(3):
         cell = row[i]
         self.tempFace[i][colNum] = cell
 
-    def column_to_row(self,faceName,colNum,rowNum):
-      face = self.orientation[faceName]
+    def column_to_row(self,faceName,colNum,rowNum,referenceCube):
+      face = referenceCube.orientation[faceName]
       col = []
       for i in range(3):
         col.append(face[i][colNum])
       self.tempFace[rowNum] = col
       
-
     def resetTempFace(self):
       self.tempFace = [[None,None,None],[None,None,None],[None,None,None]]
 
@@ -88,58 +94,98 @@ class Rubiks3:
         if self.orientation[side][1][1] == color_char:
           return side
 
+    def whatColorIs(self, sideName):
+      side = self.orientation[sideName]
+      color = side[1][1]
+      if color == 'w':
+        color = "white"
+      elif color == 'o':
+        color = "orange"
+      elif color == 'b':
+        color = "blue"
+      elif color == 'g':
+        color = "green"
+      elif color == 'y':
+        color = "yellow"
+      elif color == 'r':
+        color = "red"
+      return color
+
+
+    ## Sets the side specified to self.tempFace or some other face user inputs
+    def updateSide(self, sideName, referenceSide="tempFace"):
+      if referenceSide == "tempFace":
+        referenceSide = self.tempFace
+      if sideName == "white":
+        for c in range(3):
+          for r in range(3):
+            self.white[c][r] = self.tempFace[c][r]
+        
+      elif sideName == "orange":
+        for c in range(3):
+          for r in range(3):
+            self.orange[c][r] = self.tempFace[c][r]
+      elif sideName == "blue":
+        for c in range(3):
+          for r in range(3):
+            self.blue[c][r] = self.tempFace[c][r]
+      elif sideName == "green":
+        for c in range(3):
+          for r in range(3):
+            self.green[c][r] = self.tempFace[c][r]
+      elif sideName == "yellow":
+        for c in range(3):
+          for r in range(3):
+            self.yellow[c][r] = self.tempFace[c][r]
+      elif sideName == "red":
+        for c in range(3):
+          for r in range(3):
+            self.red[c][r] = self.tempFace[c][r]
 
     def clockwise(self,frontFace):
       self.updateOrientation(frontFace)
-      temp = self.cloneCube() # make changes to temp cube
-      temp.updateOrientation(frontFace)
-      # update front face 
-      ### row 0 becomes column 2
-      self.row_to_column('front',0,2)
-      ### row 1 becomes column 1
-      self.row_to_column('front',1,1)
-      ### row 2 becomes column 0
-      self.row_to_column('front',2,0)
+      reference = self.cloneCube()
+      reference.updateOrientation(frontFace)
 
-      temp.orientation["front"] = self.tempFace
-      #self.resetTempFace()
+      # Update front face
+      ### row 0 becomes column 2
+      self.row_to_column('front',0,2,reference)
+      ### row 1 becomes column 1
+      self.row_to_column('front',1,1,reference)
+      ### row 2 becomes column 0
+      self.row_to_column('front',2,0,reference)
+      self.updateSide(self.whatColorIs("front"))
+
 
       # update right face
       ### row 2 of top face becomes col 0 of right face 
-      row = self.orientation["top"][2]
+      self.tempFace = reference.cloneCube().orientation["right"]
+      row = reference.orientation["top"][2]
       for i in range(3):
-        temp.orientation["right"][i][0] = row[i]
+        self.tempFace[i][0] = row[i]
+      self.updateSide(self.whatColorIs("right"))
+      
+      
 
       # update left face 
       ### row 0 of bottom becomes column 2 of left face
-      self.tempFace = self.cloneCube().orientation["left"]
-      self.row_to_column('bottom',0,2)
-      temp.orientation["left"] = self.tempFace
-      #self.resetTempFace()
+      self.tempFace = reference.cloneCube().orientation["left"]
+      self.row_to_column('bottom',0,2,reference)
+      self.updateSide(self.whatColorIs("left"))
 
       # update top face 
       ### col 2 of left face becomes row 2 of top face
-      self.tempFace = self.cloneCube().orientation["top"]
-      self.column_to_row("left",2,2)
-      temp.orientation["top"] = self.tempFace
-      #self.resetTempFace()
+      self.tempFace = reference.cloneCube().orientation["top"]
+      self.column_to_row("left",2,2,reference)
+      self.updateSide(self.whatColorIs("top"))
+      
 
       # update bottom face 
       ### column 0 of right face becomes row 0 of bottom face
-      self.tempFace = self.cloneCube().orientation["bottom"]
-      self.column_to_row("right",0,0)
-      temp.orientation["bottom"] = self.tempFace
-      #self.resetTempFace()
-
-      temp.updateSidesFrontOrientation()
-
-      self.white = temp.white
-      self.blue = temp.blue
-      self.green = temp.green
-      self.orange = temp.orange
-      self.red = temp.red
-      self.yellow = temp.yellow
-
+      self.tempFace = reference.cloneCube().orientation["bottom"]
+      self.column_to_row("right",0,0,reference)
+      self.updateSide(self.whatColorIs("bottom"))
+      
 
     def deriveScore(self):
       cubeDictionary = self.returnCube()
@@ -151,4 +197,3 @@ class Rubiks3:
             if cell == cubeDictionary[faceName][1][1]:
               points += 1
       return points
-
