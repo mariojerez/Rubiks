@@ -4,7 +4,6 @@ To try out the cube:
 >print(cube)
 >cube.clockwise("white") #or some other color
 >print(cube)
-
 Note: The side color of a cube side is defined by the color of the center cell on that side
 '''
 class Rubiks3:
@@ -142,7 +141,15 @@ class Rubiks3:
           for r in range(3):
             self.red[c][r] = self.tempFace[c][r]
 
-    def clockwise(self,frontFace):
+    def solve(self):
+      self.white = [['w','w','w'],['w','w','w'],['w','w','w']]
+      self.blue = [['b','b','b'],['b','b','b'],['b','b','b']]
+      self.green = [['g','g','g'],['g','g','g'],['g','g','g']]
+      self.orange = [['o','o','o'],['o','o','o'],['o','o','o']]
+      self.yellow = [['y','y','y'],['y','y','y'],['y','y','y']]
+      self.red = [['r','r','r'],['r','r','r'],['r','r','r']]
+
+    def clockwise(self,frontFace): #White and yellow don't work
       self.updateOrientation(frontFace)
       reference = self.cloneCube()
       reference.updateOrientation(frontFace)
@@ -160,7 +167,7 @@ class Rubiks3:
       # update right face
       ### row 2 of top face becomes col 0 of right face 
       self.tempFace = reference.cloneCube().orientation["right"]
-      row = reference.orientation["top"][2]
+      row = reference.cloneCube().orientation["top"][2]
       for i in range(3):
         self.tempFace[i][0] = row[i]
       self.updateSide(self.whatColorIs("right"))
