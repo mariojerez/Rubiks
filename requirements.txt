@@ -1,4 +1,10 @@
+<<<<<<< HEAD
 attrs==21.4.0
+=======
+atomicwrites==1.4.0
+attrs==21.4.0
+colorama==0.4.4
+>>>>>>> 7b3288409110371fa4204cde5b3bbf04ba5fe5a0
 iniconfig==1.1.1
 packaging==21.3
 pluggy==1.0.0
